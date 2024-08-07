@@ -33,13 +33,13 @@ def create_vector_store():
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     split_docs = text_splitter.split_documents(docs)
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=os.getenv("OPENAI_API_KEY"))
     db = Chroma.from_documents(split_docs, embeddings, persist_directory=persistent_directory)
 
 if not os.path.exists(persistent_directory):
     create_vector_store()
 
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=os.getenv("OPENAI_API_KEY"))
 db = Chroma(persist_directory=persistent_directory, embedding_function=embeddings)
 openai_model = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
