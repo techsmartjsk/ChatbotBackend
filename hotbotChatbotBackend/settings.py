@@ -133,6 +133,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-OPENAI_API_KEY='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'
+OPENAI_API_KEY=env('OPENAI_API_KEY')
+FIRECRAWL_API_KEY=env('FIRECRAWL_API_KEY')
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
