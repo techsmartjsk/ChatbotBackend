@@ -1,0 +1,54 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+*.py[cod]
+*$py.class
+
+# If you are using PostgreSQL
+*.pgsql
+
+# If you are using MySQL
+*.mysql
+
+# If you are using SQLite
+*.sqlite3
+
+# Ignore the virtual environment folder
+venv/
+env/
+ENV/
+.venv/
+.pytest_cache/
+
+# Ignore coverage reports
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Ignore Django migrations
+migrations/
+*/migrations/
+*.swp
+
+# Ignore static and media files
+staticfiles/
+media/
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore local settings
+local_settings.py
+
+# Ignore other sensitive or unnecessary files
+.DS_Store
+Thumbs.db
