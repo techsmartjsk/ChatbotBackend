@@ -15,7 +15,7 @@ class GenerativeAIText(APIView):
                 {"role": "system", "content": "You are an AI Assistant about Hotbot Studios. Fetch all details about Hotbot Studios from internet!"},
                 {"role": "user", "content": question}
             ],
-            max_tokens=50,
+            max_tokens=100,
             temperature=0.7,
         )
         
