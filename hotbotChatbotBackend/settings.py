@@ -135,3 +135,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 OPENAI_API_KEY=env('OPENAI_API_KEY')
 FIRECRAWL_API_KEY=env('FIRECRAWL_API_KEY')
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
