@@ -15,9 +15,9 @@ env = environ.Env(
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# __import__('pysqlite3')
+# import sys
+# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Chatbot',
         'USER':'root',
-        'PASSWORD':'root',
+        'PASSWORD':'root@123',
         'HOST':'127.0.0.1',
         'PORT':'3306'
     }
@@ -133,7 +133,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-OPENAI_API_KEY=env('OPENAI_API_KEY')
-FIRECRAWL_API_KEY=env('FIRECRAWL_API_KEY')
+OPENAI_API_KEY='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'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')

@@ -1,7 +1,7 @@
 
 from django.urls import path, include
-from .views import QueryView
+from .views import GenerativeAIText
 
 urlpatterns = [
-    path('askAI/',QueryView.as_view(),name='AI Query')
+    path('askAI/',GenerativeAIText.as_view(),name='AI Query')
 ]
