@@ -6,6 +6,15 @@ import pymysql
 
 pymysql.install_as_MySQLdb()
 
+import environ
+import os
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
@@ -123,3 +132,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+OPENAI_API_KEY=env('OPENAI_API_KEY')
+FIRECRAWL_API_KEY=env('FIRECRAWL_API_KEY')

@@ -2,14 +2,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import os
-from dotenv import load_dotenv
+import environ
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_loaders import FireCrawlLoader
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings, OpenAI
+from django.conf import settings
 
 # Load environment variables from .env
-load_dotenv()
+env = environ.Env()
+environ.Env.read_env()
 
 # Define the persistent directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,7 +20,7 @@ persistent_directory = os.path.join(db_dir, "chroma_db_firecrawl")
 
 def create_vector_store():
     # Crawl the website and create a vector store if it doesn't exist
-    api_key = os.getenv("FIRECRAWL_API_KEY")
+    api_key = settings.FIRECRAWL_API_KEY
     if not api_key:
         raise ValueError("FIRECRAWL_API_KEY environment variable not set")
 
@@ -33,15 +35,15 @@ def create_vector_store():
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     split_docs = text_splitter.split_documents(docs)
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=os.getenv("OPENAI_API_KEY"))
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=settings.OPENAI_API_KEY)
     db = Chroma.from_documents(split_docs, embeddings, persist_directory=persistent_directory)
 
 if not os.path.exists(persistent_directory):
     create_vector_store()
 
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=os.getenv("OPENAI_API_KEY"))
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=settings.OPENAI_API_KEY)
 db = Chroma(persist_directory=persistent_directory, embedding_function=embeddings)
-openai_model = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai_model = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 def query_vector_store(query):
     retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
