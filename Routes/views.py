@@ -12,7 +12,7 @@ class GenerativeAIText(APIView):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an AI Assistant about Hotbot Studios. Fetch all details about Hotbot Studios from internet!"},
+                {"role": "system", "content": "You are an AI Assistant about Hotbot Studios. Fetch all details about Hotbot Studios from internet! Add AI Development as our one of the service if someone ask to list our services!"},
                 {"role": "user", "content": question}
             ],
             max_tokens=100,
