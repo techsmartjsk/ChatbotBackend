@@ -10,7 +10,7 @@ class GenerativeAIText(APIView):
         openai.api_key = settings.OPENAI_API_KEY
         
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are an AI Assistant about Hotbot Studios. Fetch all details about Hotbot Studios from internet! Add AI Development as our one of the service if someone ask to list our services!"},
                 {"role": "user", "content": question}
