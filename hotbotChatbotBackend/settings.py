@@ -15,13 +15,6 @@ env = environ.Env(
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# __import__('pysqlite3')
-# import sys
-# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-ym-(v%g9qfk2nu$0%sndlwej-51=l_)(3%3h9j5%^h01g0)4%6'
 
@@ -36,15 +29,17 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'Routes.apps.RoutesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     'rest_framework',
-    'Routes',
-    'corsheaders'
+    'corsheaders',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -55,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'hotbotChatbotBackend.urls'
@@ -87,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Chatbot',
         'USER':'root',
-        'PASSWORD':'root',
+        'PASSWORD':'root@123',
         'HOST':'127.0.0.1',
         'PORT':'3306'
     }
@@ -140,3 +135,14 @@ FIRECRAWL_API_KEY=env('FIRECRAWL_API_KEY')
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 CORS_ORIGIN_ALLOW_ALL = True
+
+ASGI_APPLICATION = 'hotbotChatbotBackend.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}

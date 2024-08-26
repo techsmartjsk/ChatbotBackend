@@ -3,6 +3,115 @@ from django.conf import settings
 import json
 import openai
 from django.http import HttpResponse
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Conversation, Message
+from .serializer import ConversationSerializer, MessageSerializer
+from .models import *
+from django.utils import timezone
+from django.utils.timezone import now
+import uuid
+
+class TrackPageViewAPIView(APIView):
+    def post(self, request):
+        url = request.data.get('url')
+        user_agent = request.data.get('user_agent')
+        ip_address = request.META.get('REMOTE_ADDR', '')
+        session_id = request.session.session_key or uuid.uuid4().hex
+        request.session.save()
+
+        if not url:
+            return Response({'error': 'URL is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        existing_view = PageView.objects.filter(
+            url=url,
+            ip_address=ip_address,
+            session_id=session_id,
+            timestamp__gte=now() - timezone.timedelta(minutes=1)  # Adjust as needed
+        ).exists()
+
+        if not existing_view:
+            PageView.objects.create(
+                url=url,
+                user_agent=user_agent,
+                ip_address=ip_address,
+                session_id=session_id
+            )
+
+        return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
+    
+class PageViewStatsAPIView(APIView):
+    def get(self, request):
+        total_views = PageView.objects.count()
+
+        data = {
+            'total_views': total_views
+        }
+        return Response(data)
+
+class TrafficStatsAPIView(APIView):
+    def get(self, request):
+        total_views = PageView.objects.count()
+
+        data = {
+            'total_views': total_views
+        }
+        return Response(data)
+
+class ChatActivityAPIView(APIView):
+    def get(self, request):
+        today = timezone.now().date()
+        active_conversations = Conversation.objects.filter(created_at__date=today)
+        total_messages = Message.objects.filter(conversation__in=active_conversations).count()
+        total_conversations = active_conversations.count()
+
+        data = {
+            'total_conversations': total_conversations,
+            'total_messages': total_messages
+        }
+        return Response(data)
+
+class ConversationList(APIView):
+    def get(self, request):
+        user = request.user
+        conversations = Conversation.objects.filter(models.Q(user1=user) | models.Q(user2=user))
+        serializer = ConversationSerializer(conversations, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ConversationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ConversationDetail(APIView):
+    def get(self, request, pk):
+        try:
+            conversation = Conversation.objects.get(pk=pk)
+        except Conversation.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ConversationSerializer(conversation)
+        return Response(serializer.data)
+
+class MessageList(APIView):
+    def get(self, request):
+        conversation_id = request.query_params.get('conversation')
+        if not conversation_id:
+            return Response({'error': 'Conversation ID required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        messages = Message.objects.filter(conversation_id=conversation_id)
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GenerativeAIText(APIView):
@@ -28,80 +137,3 @@ class GenerativeAIText(APIView):
             "response": generated_ai_response 
         }
         return HttpResponse(json.dumps(results), content_type='application/json')
-
-
-
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-# import os
-# import environ
-# from langchain.text_splitter import CharacterTextSplitter
-# from langchain_community.document_loaders import FireCrawlLoader
-# from langchain_community.vectorstores import Chroma
-# from langchain_openai import OpenAIEmbeddings, OpenAI
-# from django.conf import settings
-
-# # Load environment variables from .env
-# env = environ.Env()
-# environ.Env.read_env()
-
-# # Define the persistent directory
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# db_dir = os.path.join(current_dir, "db")
-# persistent_directory = os.path.join(db_dir, "chroma_db_firecrawl")
-
-# def create_vector_store():
-#     # Crawl the website and create a vector store if it doesn't exist
-#     api_key = settings.FIRECRAWL_API_KEY
-#     if not api_key:
-#         raise ValueError("FIRECRAWL_API_KEY environment variable not set")
-
-#     loader = FireCrawlLoader(api_key=api_key, url="https://hotbotstudios.com/", mode="scrape")
-#     docs = loader.load()
-
-#     for doc in docs:
-#         for key, value in doc.metadata.items():
-#             if isinstance(value, list):
-#                 doc.metadata[key] = ", ".join(map(str, value))
-
-#     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-#     split_docs = text_splitter.split_documents(docs)
-
-#     embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=settings.OPENAI_API_KEY)
-#     db = Chroma.from_documents(split_docs, embeddings, persist_directory=persistent_directory)
-
-# if not os.path.exists(persistent_directory):
-#     create_vector_store()
-
-# embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=settings.OPENAI_API_KEY)
-# db = Chroma(persist_directory=persistent_directory, embedding_function=embeddings)
-# openai_model = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-# def query_vector_store(query):
-#     retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
-#     relevant_docs = retriever.invoke(query)
-
-#     if not relevant_docs or all(not doc.page_content.strip() for doc in relevant_docs):
-#         return "I do not know."
-
-#     context = "\n\n".join([doc.page_content for doc in relevant_docs])
-#     prompt = (f"Context:\n{context}\n\n"
-#               f"Based on the above context, answer the following question. "
-#               f"If the answer is not found in the context, respond with 'I do not know.'\n\n"
-#               f"Query: {query}\n\n"
-#               f"Response:")
-
-#     response = openai_model.generate(prompts=[prompt], max_tokens=150)
-#     generated_text = response.generations[0][0].text
-#     return generated_text
-
-# class QueryView(APIView):
-#     def post(self, request):
-#         query = request.data.get("query")
-#         if not query:
-#             return Response({"error": "Query parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-#         response = query_vector_store(query)
-#         return Response({"response": response})
-
