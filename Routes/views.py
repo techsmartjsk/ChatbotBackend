@@ -12,6 +12,7 @@ from .models import *
 from django.utils import timezone
 from django.utils.timezone import now
 import uuid
+import os
 
 class TrackPageViewAPIView(APIView):
     def post(self, request):
@@ -74,8 +75,7 @@ class ChatActivityAPIView(APIView):
 
 class ConversationList(APIView):
     def get(self, request):
-        user = request.user
-        conversations = Conversation.objects.filter(models.Q(user1=user) | models.Q(user2=user))
+        conversations = Conversation.objects.all()
         serializer = ConversationSerializer(conversations, many=True)
         return Response(serializer.data)
 
@@ -115,21 +115,37 @@ class MessageList(APIView):
 
 
 class GenerativeAIText(APIView):
+    document_content = None 
+
+    @classmethod
+    def load_document(cls):
+        if cls.document_content is None:
+            file_path = os.path.join(settings.BASE_DIR,'static', 'hotbot_studios_info.txt')
+            print('File path',file_path)
+            
+            with open(file_path, 'r', encoding='latin-1') as file:
+                cls.document_content = file.read()
+
     def get_openai_response(self, question):
+        self.load_document()
         openai.api_key = settings.OPENAI_API_KEY
         
+        system_message = "You are an AI Assistant about Hotbot Studios. Fetch all details about Hotbot Studios from the internet! Add AI Development as one of our services if someone asks to list our services!"
+
         response = openai.ChatCompletion.create(
-            model="gpt-4o",
+            model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are an AI Assistant about Hotbot Studios. Fetch all details about Hotbot Studios from internet! Add AI Development as our one of the service if someone ask to list our services!"},
+                {"role": "system", "content": system_message},
+                {"role": "system", "content": self.document_content},
                 {"role": "user", "content": question}
             ],
             max_tokens=100,
             temperature=0.7,
         )
-        
+
         answer = response['choices'][0]['message']['content']
         return answer.strip()
+    
     def post(self, request):
         question = request.data['question']
         generated_ai_response = self.get_openai_response(question)

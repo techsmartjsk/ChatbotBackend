@@ -11,5 +11,4 @@ urlpatterns = [
     path('api/trafficStats/', TrafficStatsAPIView.as_view(), name='traffic-stats'),
     path('api/pageViews/', PageViewStatsAPIView.as_view(), name='page-view-stats'),
     path('api/trackPageView/', TrackPageViewAPIView.as_view(), name='track-page-view'),
-
 ]
