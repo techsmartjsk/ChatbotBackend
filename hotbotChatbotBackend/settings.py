@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Chatbot',
         'USER':'root',
-        'PASSWORD':'root',
+        'PASSWORD':'root@123',
         'HOST':'127.0.0.1',
         'PORT':'3306'
     }
@@ -148,3 +148,5 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+AUTH_USER_MODEL = 'Routes.ChatUser'
