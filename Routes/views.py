@@ -117,7 +117,9 @@ class MessageList(APIView):
     def get(self, request):
         conversation_id = request.query_params.get('conversation')
         if not conversation_id:
-            return Response({'error': 'Conversation ID required'}, status=status.HTTP_400_BAD_REQUEST)
+            messages = Message.objects.all()
+            message_serializer = MessageSerializer(messages, many=True)
+            return Response(message_serializer.data, status=status.HTTP_200_OK)
 
         messages = Message.objects.filter(conversation_id=conversation_id)
         serializer = MessageSerializer(messages, many=True)
