@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Conversation, Message
-from .serializer import ConversationSerializer, MessageSerializer, UserRegistrationSerializer
+from .serializer import ConversationRequestSerializer, ConversationResponseSerializer, MessageSerializer, UserRegistrationSerializer
 from .models import *
 from django.utils import timezone
 from django.utils.timezone import now
@@ -86,11 +86,11 @@ class ChatActivityAPIView(APIView):
 class ConversationList(APIView):
     def get(self, request):
         conversations = Conversation.objects.all()
-        serializer = ConversationSerializer(conversations, many=True)
+        serializer = ConversationResponseSerializer(conversations, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = ConversationSerializer(data=request.data)
+        serializer = ConversationRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -103,7 +103,7 @@ class ConversationDetail(APIView):
         except Conversation.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ConversationSerializer(conversation)
+        serializer = ConversationResponseSerializer(conversation)
         return Response(serializer.data)
 
 class MessageList(APIView):

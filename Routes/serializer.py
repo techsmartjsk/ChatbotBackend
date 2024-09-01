@@ -22,9 +22,18 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = ['id', 'conversation', 'sender', 'content', 'timestamp']
 
-class ConversationSerializer(serializers.ModelSerializer):
+class ConversationRequestSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True, read_only=True)
 
+    class Meta:
+        model = Conversation
+        fields = ['id', 'user1', 'user2', 'messages']
+
+class ConversationResponseSerializer(serializers.ModelSerializer):
+    messages = MessageSerializer(many=True, read_only=True)
+    user1 = UserRegistrationSerializer()
+    user2 = UserRegistrationSerializer()
+    
     class Meta:
         model = Conversation
         fields = ['id', 'user1', 'user2', 'messages']
