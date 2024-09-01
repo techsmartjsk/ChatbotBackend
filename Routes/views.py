@@ -29,9 +29,11 @@ class TrackPageViewAPIView(APIView):
         pages = PageView.objects.all()
         serialised_pages = PageSerializer(pages, many=True)
 
-        return Response(serialised_pages, status=status.HTTP_200_OK)
+        return Response({
+            'stats':serialised_pages
+        }, status=status.HTTP_200_OK)
     
-    
+
     def post(self, request):
         url = request.data.get('url')
         user_agent = request.data.get('user_agent')
