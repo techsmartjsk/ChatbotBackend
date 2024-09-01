@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Conversation, Message
-from .serializer import ConversationRequestSerializer, ConversationResponseSerializer, MessageSerializer, UserRegistrationSerializer, PageSerializer
+from .serializer import ConversationRequestSerializer, ConversationResponseSerializer, MessageRequestSerializer, MessageResponseSerializer, UserRegistrationSerializer, PageSerializer
 from .models import *
 from django.utils import timezone
 from django.utils.timezone import now
@@ -118,15 +118,15 @@ class MessageList(APIView):
         conversation_id = request.query_params.get('conversation')
         if not conversation_id:
             messages = Message.objects.all()
-            message_serializer = MessageSerializer(messages, many=True)
+            message_serializer = MessageResponseSerializer(messages, many=True)
             return Response(message_serializer.data, status=status.HTTP_200_OK)
 
         messages = Message.objects.filter(conversation_id=conversation_id)
-        serializer = MessageSerializer(messages, many=True)
+        serializer = MessageResponseSerializer(messages, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = MessageSerializer(data=request.data)
+        serializer = MessageRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -17,20 +17,27 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
         return user
     
-class MessageSerializer(serializers.ModelSerializer):
+class MessageRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['id', 'conversation', 'sender', 'content', 'timestamp']
+
+class MessageResponseSerializer(serializers.ModelSerializer):
+    sender = UserRegistrationSerializer()
+
     class Meta:
         model = Message
         fields = ['id', 'conversation', 'sender', 'content', 'timestamp']
 
 class ConversationRequestSerializer(serializers.ModelSerializer):
-    messages = MessageSerializer(many=True, read_only=True)
+    messages = MessageResponseSerializer(many=True, read_only=True)
 
     class Meta:
         model = Conversation
         fields = ['id', 'user1', 'user2', 'messages']
 
 class ConversationResponseSerializer(serializers.ModelSerializer):
-    messages = MessageSerializer(many=True, read_only=True)
+    messages = MessageResponseSerializer(many=True, read_only=True)
     user1 = UserRegistrationSerializer()
     user2 = UserRegistrationSerializer()
 
