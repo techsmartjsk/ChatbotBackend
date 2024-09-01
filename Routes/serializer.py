@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Conversation, Message, ChatUser
+from .models import Conversation, Message, ChatUser, PageView
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -33,7 +33,12 @@ class ConversationResponseSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True, read_only=True)
     user1 = UserRegistrationSerializer()
     user2 = UserRegistrationSerializer()
-    
+
     class Meta:
         model = Conversation
         fields = ['id', 'user1', 'user2', 'messages']
+
+class PageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PageView
+        fields = ['id', 'url', 'ip_address', 'user_agent']

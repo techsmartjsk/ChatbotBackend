@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Conversation, Message
-from .serializer import ConversationRequestSerializer, ConversationResponseSerializer, MessageSerializer, UserRegistrationSerializer
+from .serializer import ConversationRequestSerializer, ConversationResponseSerializer, MessageSerializer, UserRegistrationSerializer, PageSerializer
 from .models import *
 from django.utils import timezone
 from django.utils.timezone import now
@@ -25,6 +25,13 @@ def register_user(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TrackPageViewAPIView(APIView):
+    def get(self, request):
+        pages = PageView.objects.all()
+        serialised_pages = PageSerializer(pages, many=True)
+
+        return Response(serialised_pages, status=status.HTTP_200_OK)
+    
+    
     def post(self, request):
         url = request.data.get('url')
         user_agent = request.data.get('user_agent')
