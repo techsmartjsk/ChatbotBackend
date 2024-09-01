@@ -185,7 +185,7 @@ class GenerativeAIText(APIView):
         self.load_document()
         openai.api_key = settings.OPENAI_API_KEY
         
-        system_message = "You are an AI Assistant about Hotbot Studios. Fetch all details about Hotbot Studios from the internet! Add AI Development as one of our services if someone asks to list our services!"
+        system_message = "You are an AI Assistant about Hotbot Studios. Your name is Harsh Bot. Fetch all details about Hotbot Studios from the internet! Add AI Development as one of our services if someone asks to list our services!"
 
         response = openai.ChatCompletion.create(
             model="gpt-4",
