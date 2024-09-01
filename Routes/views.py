@@ -14,6 +14,41 @@ from django.utils.timezone import now
 import uuid
 import os
 from rest_framework.decorators import api_view
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_token(request):
+    user = request.user  # Get the user from the request
+    user_info = {
+        "email": user.email,
+        "name": user.name,
+    }
+    return Response({
+        "status": "Token is valid",
+        "user_info": user_info
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def login_user(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    user = authenticate(email=email, password=password)
+    
+    if user is not None:
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user':user.name
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 def register_user(request):
@@ -23,6 +58,7 @@ def register_user(request):
         user_id = user.id 
         return Response({'id': user_id}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TrackPageViewAPIView(APIView):
     def get(self, request):
