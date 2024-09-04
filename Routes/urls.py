@@ -6,6 +6,7 @@ urlpatterns = [
     path('conversations/', ConversationList.as_view(), name='conversation-list'),
     path('api/conversations/<int:pk>/', ConversationDetail.as_view(), name='conversation-detail'),
     path('api/messages/', MessageList.as_view(), name='message-list'),
+    path('api/chat/', chat, name='message-list'),
     path('askAI/',GenerativeAIText.as_view(),name='AI Query'),
     path('api/token/', check_token, name='check-token'),
     path('api/login/', login_user, name='login'),

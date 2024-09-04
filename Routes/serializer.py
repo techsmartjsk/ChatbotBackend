@@ -43,7 +43,7 @@ class ConversationResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Conversation
-        fields = ['id', 'user1', 'user2', 'messages']
+        fields = ['id', 'user1', 'user2', 'messages', 'created_at']
 
 class PageSerializer(serializers.ModelSerializer):
     class Meta:

@@ -59,6 +59,23 @@ def register_user(request):
         return Response({'id': user_id}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(["POST"])
+def chat(request):
+    email = request.data['email']
+    name = request.data['name']
+
+    try:
+        user = ChatUser.objects.get(email=email)
+    except ChatUser.DoesNotExist:
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            user_id = user.id 
+            return Response({'id': user_id}, status=status.HTTP_201_CREATED)
+
+    return Response({
+        'id': user.id
+    }, status=status.HTTP_200_OK)
 
 class TrackPageViewAPIView(APIView):
     def get(self, request):
@@ -133,6 +150,9 @@ class ConversationList(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        if request.data["user2"] == "AI":
+            request.data["user2"] = ChatUser.objects.get(email="hotlinedigital@gmail.com").pk
+
         serializer = ConversationRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -162,6 +182,8 @@ class MessageList(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        if request.data["sender"] == "AI":
+            request.data["sender"] = ChatUser.objects.get(email="hotlinedigital@gmail.com").pk
         serializer = MessageRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -185,7 +207,7 @@ class GenerativeAIText(APIView):
         self.load_document()
         openai.api_key = settings.OPENAI_API_KEY
         
-        system_message = "You are an AI Assistant about Hotbot Studios. Your name is Harsh Bot. Fetch all details about Hotbot Studios from the internet! Add AI Development as one of our services if someone asks to list our services!"
+        system_message = "You are an AI Assistant about Hotbot Studios. Your name is Harsh Bot. Fetch all details about Hotbot Studios from the internet! Add AI Development as one of our services if someone asks to list our services! Connect with the Agent if the user asks for it, reply only : Sure connecting you to our customer support team! All the answers should be in maximum 50 words."
 
         response = openai.ChatCompletion.create(
             model="gpt-4",
@@ -194,7 +216,7 @@ class GenerativeAIText(APIView):
                 {"role": "system", "content": self.document_content},
                 {"role": "user", "content": question}
             ],
-            max_tokens=100,
+            max_tokens=200,
             temperature=0.7,
         )
 
