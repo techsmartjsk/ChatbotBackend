@@ -45,7 +45,8 @@ def login_user(request):
         return Response({
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-            'user':user.name
+            'user':user.name,
+            'id':user.pk
         }, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -206,6 +207,8 @@ class GenerativeAIText(APIView):
     def get_openai_response(self, question):
         self.load_document()
         openai.api_key = settings.OPENAI_API_KEY
+
+        print("OPENAI API KEY", settings.OPENAI_API_KEY)
         
         system_message = "You are an AI Assistant about Hotbot Studios. Your name is Harsh Bot. Fetch all details about Hotbot Studios from the internet! Add AI Development as one of our services if someone asks to list our services! Connect with the Agent if the user asks for it, reply only : Sure connecting you to our customer support team! All the answers should be in maximum 50 words."
 

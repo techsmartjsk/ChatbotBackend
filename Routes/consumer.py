@@ -37,7 +37,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': message,
-                'sender': sender
+                'sender': chat_user.email
             }
         )
 
